@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Any
-from llm_utils import prepare_llm_input
+from llm_utils import prepare_llm_input, mock_gpt_call
 import os
 
 from azure.search.documents import SearchClient
@@ -110,3 +110,13 @@ def synthesize(payload: dict = Body(...)):
         return prepare_llm_input(question, ask_response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Synthesis prep error: {str(e)}")
+
+@app.post("/synthesize/full")
+def synthesize_full(payload: dict = Body(...)):
+    try:
+        question = payload.get("question", "")
+        ask_response = payload.get("ask_response", {})
+        llm_input = prepare_llm_input(question, ask_response)
+        return mock_gpt_call(llm_input)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Synthesis error: {str(e)}")

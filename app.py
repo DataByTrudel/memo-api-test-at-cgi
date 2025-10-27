@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Any
+from llm_utils import prepare_llm_input
 import os
 
 from azure.search.documents import SearchClient
@@ -100,3 +101,12 @@ def ask(payload: AskRequest = Body(...)):
     except Exception as e:
         # Return a clean 500 with message (and keep details in platform logs)
         raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
+
+@app.post("/synthesize")
+def synthesize(payload: dict = Body(...)):
+    try:
+        question = payload.get("question", "")
+        ask_response = payload.get("ask_response", {})
+        return prepare_llm_input(question, ask_response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Synthesis prep error: {str(e)}")

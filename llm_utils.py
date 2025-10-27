@@ -53,26 +53,31 @@ def load_prompt_template() -> str:
     with open("acheron_prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
 
+from openai import AzureOpenAI
+import os
+
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_KEY"),
+    api_version="2023-07-01-preview",
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+)
+
 def call_gpt(llm_input: dict) -> dict:
     prompt_template = load_prompt_template()
 
-    # Construct document block
     doc_block = "\n\n".join(
         f"{doc['filename']} (p. {doc['page']}):\n{doc['content']}"
         for doc in llm_input["documents"]
     )
 
-    # Combine into full prompt
     full_prompt = f"{prompt_template}\n\nUser question: {llm_input['question']}\n\nRetrieved memo pages:\n{doc_block}"
 
-    # Call Azure OpenAI
-    response = openai.ChatCompletion.create(
-        engine="gpt-4o",  # Replace with your actual deployment name
-        messages=[
-            {"role": "system", "content": full_prompt}
-        ],
+    response = client.chat.completions.create(
+        model="gpt-4o",  # Use your Azure deployment name here
+        messages=[{"role": "system", "content": full_prompt}],
         temperature=0.3
     )
 
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
+
 

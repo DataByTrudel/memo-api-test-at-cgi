@@ -2,12 +2,26 @@ from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Any
 from llm_utils import prepare_llm_input, mock_gpt_call
+from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 
 app = FastAPI()
+
+allow_origins = [
+    "http://localhost:5173",  # local dev
+    # future client/tenant host URL placeholder
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- config from env ---
 SEARCH_ENDPOINT = os.environ["SEARCH_ENDPOINT"]

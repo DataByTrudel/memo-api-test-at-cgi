@@ -120,3 +120,45 @@ def synthesize_full(payload: dict = Body(...)):
         return mock_gpt_call(llm_input)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Synthesis error: {str(e)}")
+
+from llm_utils import prepare_llm_input, call_gpt
+
+@app.post("/query")
+def query(payload: dict = Body(...)):
+    try:
+        question = payload.get("question", "")
+        year_filter = payload.get("yearFilter", None)
+        top_k = payload.get("top", 5)
+
+        # Reuse /ask logic inline (mimicking it here instead of calling it separately)
+        select_fields = ["id", "year", "metadata_storage_path", "content"]
+        results_iter = search_client.search(
+            search_text=question if question.strip() else "*",
+            filter=year_filter,
+            top=top_k,
+            select=",".join(select_fields),
+            include_total_count=True,
+        )
+
+        results = []
+        for r in results_iter:
+            doc = r.copy() if isinstance(r, dict) else dict(r)
+            raw_content = doc.get("content")
+            preview = raw_content[:500] if isinstance(raw_content, str) else ""
+            results.append({
+                "metadata_storage_path": doc.get("metadata_storage_path"),
+                "content_preview": preview
+            })
+
+        ask_response = {
+            "results": results
+        }
+
+        # Shape → Call GPT
+        llm_input = prepare_llm_input(question, ask_response)
+        gpt_response = call_gpt(llm_input)
+
+        return gpt_response
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Query error: {str(e)}")

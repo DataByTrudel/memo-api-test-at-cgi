@@ -148,6 +148,8 @@ def query(payload: dict = Body(...)):
         question = payload.get("question", "")
         year_filter = payload.get("yearFilter", None)
         top_k = payload.get("top", 5)
+        corpus = payload.get("corpus", "memos").lower()
+        search_client = get_search_client(corpus)
 
         # Reuse /ask logic inline (mimicking it here instead of calling it separately)
         select_fields = ["id", "year", "metadata_storage_path", "content"]
@@ -174,8 +176,8 @@ def query(payload: dict = Body(...)):
         }
 
         # Shape → Call GPT
-        llm_input = prepare_llm_input(question, ask_response)
-        gpt_response = call_gpt(llm_input)
+        llm_input = prepare_llm_input(question, ask_response, corpus)
+        gpt_response = call_gpt(llm_input, corpus)
 
         return gpt_response
 

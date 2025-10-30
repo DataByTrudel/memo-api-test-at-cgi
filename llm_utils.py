@@ -7,28 +7,36 @@ openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
 openai.api_key = os.getenv("AZURE_OPENAI_KEY")
 openai.api_version = "2023-07-01-preview"  # or newer if you’ve enabled it
 
-def prepare_llm_input(question: str, ask_response: dict) -> dict:
-    documents = []
-    for result in ask_response.get("results", []):
-        documents.append({
-            "filename": result.get("metadata_storage_path", "unknown").split("/")[-1],
-            "page": 1,
-            "content": result.get("content_preview", "")
-        })
+def extract_memo_fields(result: dict) -> dict:
+    return {
+        "filename": result.get("metadata_storage_path", "unknown").split("/")[-1],
+        "page": 1,
+        "content": result.get("content_preview", "")
+    }
+
+def extract_statute_fields(result: dict) -> dict:
+    return {
+        "filename": result.get("section_id", "unknown"),
+        "page": 1,
+        "content": result.get("content_preview", "")
+    }
+
+document_extractors = {
+    "memos": extract_memo_fields,
+    "statutes": extract_statute_fields
+}
+
+def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
+    extractor = document_extractors.get(corpus, extract_memo_fields)
+
+    documents = [
+        extractor(result)
+        for result in ask_response.get("results", [])
+    ]
 
     return {
         "question": question,
         "documents": documents
-    }
-
-
-    return {
-        "question": question,
-        "documents": documents,
-        "instructions": {
-            "honor_supersession": True,
-            "output_format": "acheron_json"
-        }
     }
 
 def load_prompt_template(corpus: str) -> str:

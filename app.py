@@ -23,17 +23,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- config from env ---
-SEARCH_ENDPOINT = os.environ["SEARCH_ENDPOINT"]
-SEARCH_API_KEY = os.environ["SEARCH_API_KEY"]
-SEARCH_INDEX = os.environ["SEARCH_INDEX"]
+def get_search_client(corpus: str) -> SearchClient:
+    index_lookup = {
+        "memos": os.getenv("SEARCH_INDEX_MEMOS"),
+        "statutes": os.getenv("SEARCH_INDEX_CH32")
+    }
 
-# --- construct client once (module import time) ---
-search_client = SearchClient(
-    endpoint=SEARCH_ENDPOINT,
-    index_name=SEARCH_INDEX,
-    credential=AzureKeyCredential(SEARCH_API_KEY),
-)
+    index_name = index_lookup.get(corpus, os.getenv("SEARCH_INDEX"))
+
+    print(f"🔍 Using index: {index_name} for corpus: '{corpus}'")
+
+    return SearchClient(
+        endpoint=os.getenv("SEARCH_ENDPOINT"),
+        index_name=index_name,
+        credential=AzureKeyCredential(os.getenv("SEARCH_API_KEY")),
+    )
 
 class AskRequest(BaseModel):
     question: str
@@ -70,6 +74,7 @@ def ask(payload: AskRequest = Body(...)):
         select_fields = payload.select or default_select
 
         # Run search
+        search_client = get_search_client(corpus)
         results_iter = search_client.search(
             search_text=payload.question if payload.question.strip() else "*",
             filter=payload.yearFilter,

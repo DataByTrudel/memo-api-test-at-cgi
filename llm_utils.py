@@ -77,7 +77,7 @@ def call_gpt(llm_input: dict) -> dict:
         for doc in llm_input["documents"]
     )
 
-    full_prompt = f"{prompt_template}\n\nUser question: {llm_input['question']}\n\nRetrieved memo pages:\n{doc_block}"
+    full_prompt = f"{prompt_template}\n\nUser question: {llm_input['question']}\n\nRetrieved documents:\n{doc_block}"
 
     try:
         response = client.chat.completions.create(

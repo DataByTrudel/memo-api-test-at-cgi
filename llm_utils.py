@@ -77,8 +77,8 @@ client = AzureOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
 )
 
-def call_gpt(llm_input: dict) -> dict:
-    prompt_template = load_prompt_template()
+def call_gpt(llm_input: dict, corpus: str) -> dict:
+    prompt_template = load_prompt_template(corpus)
 
     doc_block = "\n\n".join(
         f"{doc['filename']} (p. {doc['page']}):\n{doc['content']}"

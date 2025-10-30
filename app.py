@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Any
-from llm_utils import prepare_llm_input, mock_gpt_call
+from llm_utils import prepare_llm_input
 from fastapi.middleware.cors import CORSMiddleware
 import os
 

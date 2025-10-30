@@ -150,9 +150,12 @@ def query(payload: dict = Body(...)):
         top_k = payload.get("top", 5)
         corpus = payload.get("corpus", "memos").lower()
         search_client = get_search_client(corpus)
+        select_field_lookup = {
+            "memos": ["id", "year", "metadata_storage_path", "content"],
+            "statutes": ["section_id", "citation", "title", "citation_url", "text_chunks"]
+        }
+        select_fields = payload.get("select") or select_field_lookup.get(corpus, select_field_lookup["memos"])
 
-        # Reuse /ask logic inline (mimicking it here instead of calling it separately)
-        select_fields = ["id", "year", "metadata_storage_path", "content"]
         results_iter = search_client.search(
             search_text=question if question.strip() else "*",
             filter=year_filter,
@@ -162,14 +165,29 @@ def query(payload: dict = Body(...)):
         )
 
         results = []
+
         for r in results_iter:
             doc = r.copy() if isinstance(r, dict) else dict(r)
-            raw_content = doc.get("content")
-            preview = raw_content[:500] if isinstance(raw_content, str) else ""
-            results.append({
-                "metadata_storage_path": doc.get("metadata_storage_path"),
-                "content_preview": preview
-            })
+
+            if corpus == "statutes":
+                combined_text = "\n\n".join(doc.get("text_chunks", []))
+                preview = combined_text[:500]
+                results.append({
+                    "section_id": doc.get("section_id"),
+                    "citation": doc.get("citation"),
+                    "title": doc.get("title"),
+                    "citation_url": doc.get("citation_url"),
+                    "content_preview": preview
+                })
+
+            else:  # memos
+                raw_content = doc.get("content")
+                preview = raw_content[:500] if isinstance(raw_content, str) else ""
+                results.append({
+                    "metadata_storage_path": doc.get("metadata_storage_path"),
+                    "content_preview": preview
+                })
+
 
         ask_response = {
             "results": results

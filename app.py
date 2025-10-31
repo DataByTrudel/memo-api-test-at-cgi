@@ -73,6 +73,7 @@ def query(payload: dict = Body(...)):
 
         ask_response = {"results": results}
         llm_input = prepare_llm_input(question, ask_response, corpus)
+        print("🔍 Retrieved documents:", [doc.get("section_id") or doc.get("filename") for doc in results])
         gpt_response = call_gpt(llm_input, corpus)
 
         return gpt_response

@@ -26,28 +26,41 @@ document_extractors = {
     "statutes": extract_statute_fields
 }
 
+def extract_memo_fields(result: dict) -> dict:
+    return {
+        "filename": result.get("metadata_storage_path", "unknown").split("/")[-1],
+        "page": 1,
+        "content": result.get("content_preview", "")
+    }
+
+def extract_statute_fields(result: dict) -> dict:
+    return {
+        "filename": result.get("section_id", "unknown"),
+        "page": 1,
+        "content": result.get("content_preview", "")
+    }
+
+document_extractors = {
+    "memos": extract_memo_fields,
+    "statutes": extract_statute_fields
+}
+
 def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
     extractor = document_extractors.get(corpus, extract_memo_fields)
-
-    documents = [
-        extractor(result)
-        for result in ask_response.get("results", [])
-    ]
-
+    documents = [extractor(r) for r in ask_response.get("results", [])]
     return {
         "question": question,
         "documents": documents
     }
 
-def load_prompt_template(corpus: str) -> str:
-    prompt_lookup = {
-        "memos": "prompt_memo.txt",
-        "statutes": "prompt_ch32.txt"
-    }
+prompt_lookup = {
+    "memos": "prompt_memo.txt",
+    "statutes": "prompt_ch32.txt"
+}
 
+def load_prompt_template(corpus: str) -> str:
     prompt_file = prompt_lookup.get(corpus, "prompt_acheron.txt")
     print(f"📄 Using prompt: {prompt_file} for corpus: '{corpus}'")
-
     with open(prompt_file, "r", encoding="utf-8") as f:
         return f.read()
 

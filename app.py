@@ -23,6 +23,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Corpus-specific select fields
+select_field_lookup = {
+    "memos": ["id", "year", "metadata_storage_path", "content"],
+    "statutes": ["section_id", "citation", "title", "citation_url", "text_chunks"]
+}
+
+# Corpus-specific top-k defaults
+default_top_lookup = {
+    "memos": 5,
+    "statutes": 15
+}
+
 def get_search_client(corpus: str) -> SearchClient:
     index_lookup = {
         "memos": os.getenv("SEARCH_INDEX_MEMOS"),
@@ -71,7 +83,7 @@ def ask(payload: AskRequest = Body(...)):
     try:
         # Build select list: safe defaults if not provided
         default_select = ["id", "year", "metadata_storage_path", "content"]
-        select_fields = payload.select or default_select
+        select_fields = payload.get("select") or select_field_lookup.get(corpus, select_field_lookup["memos"])
 
         # Run search
         search_client = get_search_client(corpus)
@@ -147,7 +159,11 @@ def query(payload: dict = Body(...)):
     try:
         question = payload.get("question", "")
         year_filter = payload.get("yearFilter", None)
-        top_k = payload.get("top", 5)
+        default_top_lookup = {
+            "memos": 5,
+            "statutes": 15
+        }
+        top_k = payload.get("top", default_top_lookup.get(corpus, 5))
         corpus = payload.get("corpus", "memos").lower()
         search_client = get_search_client(corpus)
         select_field_lookup = {

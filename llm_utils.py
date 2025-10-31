@@ -1,94 +1,50 @@
 # llm_utils.py
 import openai
 import os
-
-openai.api_type = "azure"
-openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-openai.api_key = os.getenv("AZURE_OPENAI_KEY")
-openai.api_version = "2023-07-01-preview"  # or newer if you’ve enabled it
-
-def extract_memo_fields(result: dict) -> dict:
-    return {
-        "filename": result.get("metadata_storage_path", "unknown").split("/")[-1],
-        "page": 1,
-        "content": result.get("content_preview", "")
-    }
-
-def extract_statute_fields(result: dict) -> dict:
-    return {
-        "filename": result.get("section_id", "unknown"),
-        "page": 1,
-        "content": result.get("content_preview", "")
-    }
-
-document_extractors = {
-    "memos": extract_memo_fields,
-    "statutes": extract_statute_fields
-}
-
-def extract_memo_fields(result: dict) -> dict:
-    return {
-        "filename": result.get("metadata_storage_path", "unknown").split("/")[-1],
-        "page": 1,
-        "content": result.get("content_preview", "")
-    }
-
-def extract_statute_fields(result: dict) -> dict:
-    return {
-        "filename": result.get("section_id", "unknown"),
-        "page": 1,
-        "content": result.get("content_preview", "")
-    }
-
-document_extractors = {
-    "memos": extract_memo_fields,
-    "statutes": extract_statute_fields
-}
-
-def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
-    extractor = document_extractors.get(corpus, extract_memo_fields)
-    documents = [extractor(r) for r in ask_response.get("results", [])]
-    return {
-        "question": question,
-        "documents": documents
-    }
-
-prompt_lookup = {
-    "memos": "prompt_memo.txt",
-    "statutes": "prompt_ch32.txt"
-}
-
-def load_prompt_template(corpus: str) -> str:
-    prompt_file = prompt_lookup.get(corpus, "prompt_acheron.txt")
-    print(f"📄 Using prompt: {prompt_file} for corpus: '{corpus}'")
-    with open(prompt_file, "r", encoding="utf-8") as f:
-        return f.read()
-
 import json
 import re
-
-def extract_clean_json(response_text: str) -> dict:
-    """
-    Extracts and parses JSON from LLM output, stripping markdown formatting if present.
-    """
-    # Remove ```json ... ``` or ``` blocks
-    cleaned = re.sub(r"```(json)?", "", response_text).strip()
-
-    # Try to parse
-    try:
-        return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Failed to parse LLM response as JSON: {str(e)}\nRaw content: {cleaned}")
-
-
 from openai import AzureOpenAI
-import os
+from corpus_config import corpus_config
 
 client = AzureOpenAI(
     api_key=os.getenv("AZURE_OPENAI_KEY"),
     api_version="2023-07-01-preview",
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
 )
+
+def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
+    config = corpus_config.get(corpus, corpus_config["memos"])
+    doc_fields = config.get("document_fields")
+    extract_fn = config.get("extract_document_fn")
+
+    documents = []
+    for result in ask_response.get("results", []):
+        if extract_fn:
+            documents.append(extract_fn(result))
+        else:
+            documents.append({
+                "filename": result.get(doc_fields["filename"], "unknown"),
+                "page": doc_fields["page"],
+                "content": result.get(doc_fields["content"], "")
+            })
+
+    return {
+        "question": question,
+        "documents": documents
+    }
+
+def load_prompt_template(corpus: str) -> str:
+    prompt_file = corpus_config.get(corpus, corpus_config["memos"]).get("prompt_file", "prompt_acheron.txt")
+    print(f"\U0001F4C4 Using prompt: {prompt_file} for corpus: '{corpus}'")
+    with open(prompt_file, "r", encoding="utf-8") as f:
+        return f.read()
+
+def extract_clean_json(response_text: str) -> dict:
+    cleaned = re.sub(r"```(json)?", "", response_text).strip()
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse LLM response as JSON: {str(e)}\nRaw content: {cleaned}")
 
 def call_gpt(llm_input: dict, corpus: str) -> dict:
     prompt_template = load_prompt_template(corpus)
@@ -102,7 +58,7 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",  # Use your Azure deployment name
+            model="gpt-4o",
             messages=[{"role": "system", "content": full_prompt}],
             temperature=0.3
         )

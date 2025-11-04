@@ -59,9 +59,11 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
     prompt_template = load_prompt_template(corpus)
 
     # Build document block for prompt context
-    doc_block = "\n\n".join(
-        f"Source: {doc['source']}\nURL: {doc.get('url', 'N/A')}\n{doc['preview']}"
-        for doc in llm_input["documents"]
+    doc_block = "\n\n---\n\n".join(
+        f"DOCUMENT {i+1}\nSource: {doc['source']}\nURL: {doc.get('url', 'N/A')}\n\n"
+        f"Content Preview:\n{doc['preview']}\n\n"
+        "END OF DOCUMENT"
+    for i, doc in enumerate(llm_input["documents"])
     )
 
     full_prompt = (

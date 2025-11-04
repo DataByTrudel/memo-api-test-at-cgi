@@ -77,10 +77,13 @@ def query(payload: dict = Body(...)):
                 # Clip long content safely for prompt size
                 content_val = shaped.get("content", "")
                 if isinstance(content_val, list):
-                    shaped["content"] = "\n\n".join(content_val)[:1500]
+                    # Join list of chunks (for statutes or any Collection(String) field)
+                    shaped["content"] = "\n\n".join([str(x) for x in content_val if x])[:1500]
                 elif isinstance(content_val, str):
+                    # Simple string fields (memos, etc.)
                     shaped["content"] = content_val[:1500]
                 else:
+                    # Catch unexpected types (numbers, None, dicts)
                     shaped["content"] = str(content_val)[:1500]
 
                 results.append(shaped)

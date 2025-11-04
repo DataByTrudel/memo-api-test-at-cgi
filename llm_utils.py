@@ -28,7 +28,7 @@ def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
 
             # Determine which field holds the document text
             content_key = doc_fields.get("content") or doc_fields.get("preview")
-            text_content = result.get(content_key, "")
+            text_content = result.get("content") or result.get(content_key, "")
 
             url_value = doc_fields.get("url")
             url = (

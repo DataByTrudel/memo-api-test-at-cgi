@@ -10,7 +10,11 @@ from llm_utils import prepare_llm_input, call_gpt
 
 app = FastAPI()
 
-allow_origins = ["http://localhost:5173"]
+allow_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://[::1]:5173"
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def get_search_client(corpus: str) -> SearchClient:
     index_name = corpus_config.get(corpus, corpus_config["memos"]).get("index_name")
     print(f"🔍 Using index: {index_name} for corpus: '{corpus}'")
@@ -28,6 +33,7 @@ def get_search_client(corpus: str) -> SearchClient:
         index_name=index_name,
         credential=AzureKeyCredential(os.getenv("SEARCH_API_KEY")),
     )
+
 
 @app.post("/query")
 def query(payload: dict = Body(...)):
@@ -63,7 +69,10 @@ def query(payload: dict = Body(...)):
                 shaped = {}
                 # Standardized field extraction
                 for key, value in result_fields.items():
-                    shaped[key] = value if isinstance(value, str) and value.startswith("http") else doc.get(value)
+                    shaped[key] = (
+                        value if isinstance(value, str) and value.startswith("http")
+                        else doc.get(value)
+                    )
 
                 # Handle preview clipping safely
                 preview_val = shaped.get("preview", "")
@@ -85,6 +94,7 @@ def query(payload: dict = Body(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Query error: {str(e)}")
+
 
 @app.post("/search")
 def search(payload: dict = Body(...)):
@@ -115,12 +125,15 @@ def search(payload: dict = Body(...)):
             if extract_result_fn:
                 results.append(extract_result_fn(doc))
             else:
-                                result_fields = config.get("result_fields")
+                result_fields = config.get("result_fields")
 
                 shaped = {}
                 # Standardized field extraction
                 for key, value in result_fields.items():
-                    shaped[key] = value if isinstance(value, str) and value.startswith("http") else doc.get(value)
+                    shaped[key] = (
+                        value if isinstance(value, str) and value.startswith("http")
+                        else doc.get(value)
+                    )
 
                 # Handle preview clipping safely
                 preview_val = shaped.get("preview", "")

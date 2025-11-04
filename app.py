@@ -64,24 +64,24 @@ def query(payload: dict = Body(...)):
             if extract_result_fn:
                 results.append(extract_result_fn(doc))
             else:
-                result_fields = config.get("result_fields")
+                doc_fields = config.get("document_fields")
 
                 shaped = {}
-                # Standardized field extraction
-                for key, value in result_fields.items():
+                # Standardized field extraction for LLM input
+                for key, value in doc_fields.items():
                     shaped[key] = (
                         value if isinstance(value, str) and value.startswith("http")
                         else doc.get(value)
                     )
 
-                # Handle preview clipping safely
-                preview_val = shaped.get("preview", "")
-                if isinstance(preview_val, list):
-                    shaped["preview"] = "\n\n".join(preview_val)[:500]
-                elif isinstance(preview_val, str):
-                    shaped["preview"] = preview_val[:500]
+                # Clip long content safely for prompt size
+                content_val = shaped.get("content", "")
+                if isinstance(content_val, list):
+                    shaped["content"] = "\n\n".join(content_val)[:1500]
+                elif isinstance(content_val, str):
+                    shaped["content"] = content_val[:1500]
                 else:
-                    shaped["preview"] = str(preview_val)[:500]
+                    shaped["content"] = str(content_val)[:1500]
 
                 results.append(shaped)
 
@@ -128,14 +128,14 @@ def search(payload: dict = Body(...)):
                 result_fields = config.get("result_fields")
 
                 shaped = {}
-                # Standardized field extraction
+                # Standardized field extraction for UI preview
                 for key, value in result_fields.items():
                     shaped[key] = (
                         value if isinstance(value, str) and value.startswith("http")
                         else doc.get(value)
                     )
 
-                # Handle preview clipping safely
+                # Clip long preview text for display
                 preview_val = shaped.get("preview", "")
                 if isinstance(preview_val, list):
                     shaped["preview"] = "\n\n".join(preview_val)[:500]

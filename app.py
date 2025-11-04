@@ -54,7 +54,7 @@ def query(payload: dict = Body(...)):
             search_text=question if question.strip() else "*",
             filter=year_filter,
             top=top_k,
-            select=",".join(select_fields),
+            select=" ".join(select_fields),
             include_total_count=True,
         )
 
@@ -79,8 +79,8 @@ def query(payload: dict = Body(...)):
 
                 # Clip long content safely for prompt size
                 content_val = shaped.get("content", "")
-                logger.info(f"{corpus} content sample: {result.get('text_chunks', [])[:1]}")
 
+                logger.info(f"{corpus} content sample: {doc.get('text_chunks', [])[:1]}")
 
                 if isinstance(content_val, list):
                     # Join list of chunks (for statutes or any Collection(String) field)
@@ -121,7 +121,7 @@ def search(payload: dict = Body(...)):
             search_text=question if question.strip() else "*",
             filter=year_filter,
             top=top_k,
-            select=",".join(select_fields),
+            select=" ".join(select_fields),
             include_total_count=True,
         )
 

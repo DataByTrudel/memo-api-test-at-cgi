@@ -76,6 +76,9 @@ def query(payload: dict = Body(...)):
 
                 # Clip long content safely for prompt size
                 content_val = shaped.get("content", "")
+                print(f"{corpus} content sample for {shaped.get('source')}:",
+                      str(content_val)[:300])
+
                 if isinstance(content_val, list):
                     # Join list of chunks (for statutes or any Collection(String) field)
                     shaped["content"] = "\n\n".join([str(x) for x in content_val if x])[:1500]

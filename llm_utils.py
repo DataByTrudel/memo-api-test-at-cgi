@@ -24,7 +24,8 @@ def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
             documents.append(extract_fn(result))
         else:
             source = result.get(doc_fields.get("source"), "unknown")
-            preview = result.get(doc_fields.get("content")) or result.get(doc_fields.get("preview"), "")
+            preview_key = doc_fields.get("preview") or doc_fields.get("content")
+            preview = result.get(preview_key, "")
             url_value = doc_fields.get("url")
             url = url_value if isinstance(url_value, str) and url_value.startswith("http") else result.get(url_value)
 
@@ -60,9 +61,9 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
 
     # Build document block for prompt context
     doc_block = "\n\n---\n\n".join(
-        f"DOCUMENT {i+1}\nSource: {doc['source']}\nURL: {doc.get('url', 'N/A')}\n\n"
-        f"Content Preview:\n{doc['preview']}\n\n"
-        "END OF DOCUMENT"
+        f"DOCUMENT {i+1}\nSource: {doc.get('source', 'unknown')}\n"
+        f"URL: {doc.get('url', 'N/A')}\n\n"
+        f"{doc.get('content', '')}\nEND OF DOCUMENT"
     for i, doc in enumerate(llm_input["documents"])
     )
 
@@ -79,6 +80,18 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
             temperature=0.3
         )
         raw = response.choices[0].message.content
+        usage = getattr(response, "usage", None)
+        if usage:
+            print(f"Token usage - prompt: {usage.prompt_tokens}, "
+                  f"completion: {usage.completion_tokens}, total: {usage.total_tokens}")
+
+        if not raw or not raw.strip():
+            return {
+                "intent": "interpretive",
+                "summary": "[LLM returned empty content]",
+                "citations": [],
+                "why these": "System fallback: no text returned from LLM.",
+            }
         return extract_clean_json(raw)
 
     except Exception as e:
@@ -86,5 +99,5 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
             "intent": "interpretive",
             "summary": f"[LLM processing failed: {str(e)}]",
             "citations": [],
-            "why_these": "System fallback: LLM did not return valid output."
+            "why these": "System fallback: LLM did not return valid output."
         }

@@ -59,21 +59,26 @@ def query(payload: dict = Body(...)):
                 results.append(extract_result_fn(doc))
             else:
                 result_fields = config.get("result_fields")
-                shaped = {k: doc.get(v) for k, v in result_fields.items()}
 
-                # If preview is based on content field, clip it
-                content_key = result_fields.get("content_preview")
-                content_val = doc.get(content_key, "")
-                if isinstance(content_val, list):
-                    shaped["content_preview"] = "\n\n".join(content_val)[:500]
-                elif isinstance(content_val, str):
-                    shaped["content_preview"] = content_val[:500]
+                shaped = {}
+                # Standardized field extraction
+                for key, value in result_fields.items():
+                    shaped[key] = value if isinstance(value, str) and value.startswith("http") else doc.get(value)
+
+                # Handle preview clipping safely
+                preview_val = shaped.get("preview", "")
+                if isinstance(preview_val, list):
+                    shaped["preview"] = "\n\n".join(preview_val)[:500]
+                elif isinstance(preview_val, str):
+                    shaped["preview"] = preview_val[:500]
+                else:
+                    shaped["preview"] = str(preview_val)[:500]
 
                 results.append(shaped)
 
         ask_response = {"results": results}
         llm_input = prepare_llm_input(question, ask_response, corpus)
-        print("🔍 Retrieved documents:", [doc.get("section_id") or doc.get("filename") for doc in results])
+        print("🔍 Retrieved documents:", [doc.get("source") for doc in results])
         gpt_response = call_gpt(llm_input, corpus)
 
         return gpt_response
@@ -110,15 +115,21 @@ def search(payload: dict = Body(...)):
             if extract_result_fn:
                 results.append(extract_result_fn(doc))
             else:
-                result_fields = config.get("result_fields")
-                shaped = {k: doc.get(v) for k, v in result_fields.items()}
+                                result_fields = config.get("result_fields")
 
-                content_key = result_fields.get("content_preview")
-                content_val = doc.get(content_key, "")
-                if isinstance(content_val, list):
-                    shaped["content_preview"] = "\n\n".join(content_val)[:500]
-                elif isinstance(content_val, str):
-                    shaped["content_preview"] = content_val[:500]
+                shaped = {}
+                # Standardized field extraction
+                for key, value in result_fields.items():
+                    shaped[key] = value if isinstance(value, str) and value.startswith("http") else doc.get(value)
+
+                # Handle preview clipping safely
+                preview_val = shaped.get("preview", "")
+                if isinstance(preview_val, list):
+                    shaped["preview"] = "\n\n".join(preview_val)[:500]
+                elif isinstance(preview_val, str):
+                    shaped["preview"] = preview_val[:500]
+                else:
+                    shaped["preview"] = str(preview_val)[:500]
 
                 results.append(shaped)
 

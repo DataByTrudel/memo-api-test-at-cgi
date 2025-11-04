@@ -22,10 +22,15 @@ def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
         if extract_fn:
             documents.append(extract_fn(result))
         else:
+            source = result.get(doc_fields.get("source"), "unknown")
+            preview = result.get(doc_fields.get("content")) or result.get(doc_fields.get("preview"), "")
+            url_value = doc_fields.get("url")
+            url = url_value if isinstance(url_value, str) and url_value.startswith("http") else result.get(url_value)
+
             documents.append({
-                "filename": result.get(doc_fields["filename"], "unknown"),
-                "page": doc_fields["page"],
-                "content": result.get(doc_fields["content"], "")
+                "source": source,
+                "preview": preview,
+                "url": url
             })
 
     return {
@@ -49,10 +54,10 @@ def extract_clean_json(response_text: str) -> dict:
 def call_gpt(llm_input: dict, corpus: str) -> dict:
     prompt_template = load_prompt_template(corpus)
 
-    doc_block = "\n\n".join(
-        f"{doc['filename']} (p. {doc['page']}):\n{doc['content']}"
-        for doc in llm_input["documents"]
-    )
+doc_block = "\n\n".join(
+    f"Source: {doc['source']}\nURL: {doc.get('url', 'N/A')}\n{doc['preview']}"
+    for doc in llm_input["documents"]
+)
 
     full_prompt = f"{prompt_template}\n\nUser question: {llm_input['question']}\n\nRetrieved documents:\n{doc_block}"
 

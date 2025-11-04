@@ -25,39 +25,56 @@ corpus_config = {
         "select_fields": ["id", "year", "metadata_storage_path", "content"],
         "default_top": 5,
         "document_fields": {
-            "filename": "metadata_storage_path",
-            "page": 1,
-            "content": "content_preview"
+            "source": "metadata_storage_path",
+            "content": "content",
+            "url": "https://www.mass.gov/perac-memos",
         },
         "result_fields": {
-            "filename": "metadata_storage_path",
-            "content_preview": "content"
-        }
+            "source": "metadata_storage_path",
+            "preview": "content",
+            "url": "https://www.mass.gov/perac-memos",
+        },
     },
+
     "statutes": {
         "index_name": os.getenv("SEARCH_INDEX_CH32"),
         "prompt_file": "prompt_ch32.txt",
         "select_fields": ["section_id", "citation", "title", "citation_url", "text_chunks"],
         "default_top": 15,
         "document_fields": {
-            "filename": "section_id",
-            "page": 1,
-            "content": "content_preview"
+            "source": "citation",
+            "content": "text_chunks",
+            "url": "citation_url",
         },
         "result_fields": {
-            "section_id": "section_id",
-            "citation": "citation",
-            "title": "title",
-            "citation_url": "citation_url",
-            "content_preview": "text_chunks"
-        }
+            "source": "citation",
+            "preview": "text_chunks",
+            "url": "citation_url",
+        },
     },
-    "complex_demo": {
-        "index_name": "placeholder-index",
-        "prompt_file": "prompt_complex.txt",
-        "select_fields": ["field1", "field2"],
-        "default_top": 5,
-        "extract_document_fn": extract_complex_document,
-        "extract_result_fn": extract_complex_result
-    }
 }
+
+# === Reference Template (Acheron) ===
+# This is a placeholder configuration showing the expected shape for new corpus entries.
+# Do NOT enable or use this corpus directly. It provides default field naming only.
+#
+# "acheron": {
+#     "index_name": "placeholder-index",
+#     "prompt_file": "prompt_acheron.txt",
+#     "select_fields": ["id", "title", "url", "content"],
+#     "default_top": 5,
+#     "document_fields": {
+#         "source": "title",
+#         "content": "content",
+#         "url": "url"
+#     },
+#     "result_fields": {
+#         "source": "title",
+#         "preview": "content",
+#         "url": "url"
+#     },
+#     "citation_fields": {
+#         "source": "title",
+#         "url": "url"
+#     }
+# }

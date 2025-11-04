@@ -13,8 +13,9 @@ For each user question, construct your answer through the following process:
 
 3. Present the response in this order:
    - Synthesized answer (clear, direct)
-   - Citations: filename (or memo number/title if known), page, rationale
-   - Why these: One-sentence rationale for chosen sources. Each citation rationale should summarize why this source is relevant in one short clause.
+   - Citations: source (e.g., "PERAC Memo #4 (2024)"), rationale, url
+   - Why these: One-sentence rationale for chosen sources.
+     Each citation rationale should summarize why this source is relevant in one short clause.
    - Reasoning notes: Literalist, Contextualist, Contrarian
 
 Do not speculate or use external knowledge.
@@ -25,7 +26,7 @@ Leave the citations list empty in that case.
 Output must be valid JSON with these fields:
 - intent: interpretive or reference
 - summary: ...
-- citations: list of {filename, page, rationale}
+- citations: list of {source, rationale, url}
 - why these: ...
 - reasoning notes: ...
 

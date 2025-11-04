@@ -7,6 +7,9 @@ from corpus_config import corpus_config
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 from llm_utils import prepare_llm_input, call_gpt
+import logging
+logging.basicConfig(level=logging.INFO, force=True)
+logger = logging.getLogger("librarian")
 
 app = FastAPI()
 
@@ -27,7 +30,7 @@ app.add_middleware(
 
 def get_search_client(corpus: str) -> SearchClient:
     index_name = corpus_config.get(corpus, corpus_config["memos"]).get("index_name")
-    print(f"🔍 Using index: {index_name} for corpus: '{corpus}'")
+    print(f" Using index: {index_name} for corpus: '{corpus}'")
     return SearchClient(
         endpoint=os.getenv("SEARCH_ENDPOINT"),
         index_name=index_name,
@@ -76,8 +79,8 @@ def query(payload: dict = Body(...)):
 
                 # Clip long content safely for prompt size
                 content_val = shaped.get("content", "")
-                print(f"{corpus} content sample for {shaped.get('source')}:",
-                      str(content_val)[:300])
+                logger.info(f"{corpus} content sample: {result.get('text_chunks', [])[:1]}")
+
 
                 if isinstance(content_val, list):
                     # Join list of chunks (for statutes or any Collection(String) field)

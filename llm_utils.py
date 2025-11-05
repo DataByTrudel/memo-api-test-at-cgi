@@ -34,7 +34,7 @@ def prepare_llm_input(question: str, ask_response: dict, corpus: str) -> dict:
             url = (
                 url_value
                 if isinstance(url_value, str) and url_value.startswith("http")
-                else result.get(url_value)
+                else result.get("url") or result.get(url_value)
             )
 
             documents.append({

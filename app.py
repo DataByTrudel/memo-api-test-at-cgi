@@ -80,7 +80,8 @@ def query(payload: dict = Body(...)):
                 # Clip long content safely for prompt size
                 content_val = shaped.get("content", "")
 
-                logger.info(f"{corpus} content sample: {doc.get('text_chunks', [])[:1]}")
+                # send text chunks to web app log stream:
+                # logger.info(f"{corpus} content sample: {doc.get('text_chunks', [])[:1]}")
 
                 if isinstance(content_val, list):
                     # Join list of chunks (for statutes or any Collection(String) field)

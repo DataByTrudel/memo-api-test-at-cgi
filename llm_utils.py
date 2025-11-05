@@ -99,11 +99,11 @@ def call_gpt(llm_input: dict, corpus: str) -> dict:
 
         # Optional token usage diagnostics
         usage = getattr(response, "usage", None)
-        if usage:
-            print(
-                f"🔢 Token usage — prompt: {usage.prompt_tokens}, "
-                f"completion: {usage.completion_tokens}, total: {usage.total_tokens}"
-            )
+        # if usage:
+            # logger.info(
+            #     f"🔢 Token usage — prompt: {usage.prompt_tokens}, completion: {usage.completion_tokens}, total: {usage.total_tokens}"
+            # )
+            # )
 
         # Guard against empty responses
         if not raw or not raw.strip():

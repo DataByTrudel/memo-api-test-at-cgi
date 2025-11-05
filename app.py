@@ -121,7 +121,7 @@ def search(payload: dict = Body(...)):
             search_text=question if question.strip() else "*",
             filter=year_filter,
             top=top_k,
-            select=" ".join(select_fields),
+            select=select_fields,
             include_total_count=True,
         )
 

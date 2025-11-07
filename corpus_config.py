@@ -52,6 +52,29 @@ corpus_config = {
             "url": "citation_url",
         },
     },
+    "opinions": {
+        "index_name": os.getenv("SEARCH_INDEX_OPINIONS", "opinions-index-v2"),
+        "prompt_file": "prompt_opinion.txt",
+        "select_fields": [
+            "opinion_id",
+            "title",
+            "date",
+            "addressee",
+            "citation_url",
+            "text_chunks"
+        ],
+        "default_top": 10,
+        "document_fields": {
+            "source": "title",
+            "content": "text_chunks",
+            "url": "citation_url",
+        },
+        "result_fields": {
+            "source": "title",
+            "preview": "text_chunks",
+            "url": "citation_url",
+        },
+    }
 }
 
 # === Reference Template (Acheron) ===

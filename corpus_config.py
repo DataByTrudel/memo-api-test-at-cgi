@@ -53,7 +53,7 @@ corpus_config = {
         },
     },
     "opinions": {
-        "index_name": os.getenv("SEARCH_INDEX_OPINIONS", "opinions-index-v2"),
+        "index_name": os.getenv("SEARCH_INDEX_OPINIONS", "opinions-index-v4"),
         "prompt_file": "prompt_opinion.txt",
         "select_fields": [
             "opinion_id",

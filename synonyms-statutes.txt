@@ -1,0 +1,28 @@
+# ─────────── Numeric / Age Equivalents ───────────
+attained age 45, turning 45, prior to age 45, before age 45, under age 45, less than age 45
+attained age 50, turning 50, prior to age 50, before age 50, under age 50, less than age 50
+years of creditable service, years of service, creditable service
+age requirement, minimum age, age threshold
+
+# ─────────── Group Designations ───────────
+group 1, group one
+group 2, group two
+group 3, group three
+group 4, group four
+group classification, membership group, occupational group
+
+# ─────────── Retirement / Benefit Phrasing ───────────
+retirement allowance, pension, annuity, benefit, allowance
+retirement calculation, benefit calculation, pension calculation
+retire early, early retirement, retire before minimum age, retirement before required age
+retirement system, retirement board, board of retirement
+
+# ─────────── Legal References / Symbols ───────────
+section, §, sec, subsection
+chapter, ch, c
+general laws, G.L., M.G.L.
+
+# ─────────── Miscellaneous Legal Style Terms ───────────
+applicable, governs, pertains to, relates to, controls
+provided that, on condition that, if, when
+notwithstanding, except that, however

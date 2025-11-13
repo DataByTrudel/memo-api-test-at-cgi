@@ -24,8 +24,7 @@ For each user question, construct your answer through the following process:
 
 Do not speculate or use external knowledge.
 If no relevant content is found, respond with:
-"None of the retrieved pages are relevant."
-Leave the citations list empty in that case.
+"None of the retrieved sections appear to address this specific question directly. Please review the reasoning notes below as they may help you rephrase your question."
 
 Output must be valid JSON with these fields:
 - intent: interpretive or reference

@@ -40,7 +40,8 @@ corpus_config = {
         "index_name": os.getenv("SEARCH_INDEX_CH32"),
         "prompt_file": "prompt_ch32.txt",
         "select_fields": ["section_id", "citation", "title", "citation_url", "text_chunks"],
-        "default_top": 30,
+        "postprocess_fn": "statutes_prefer_base_sections",
+        "default_top": 50,
         "document_fields": {
             "source": "citation",
             "content": "text_chunks",

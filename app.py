@@ -96,8 +96,21 @@ def query(payload: dict = Body(...)):
                 results.append(shaped)
 
         ask_response = {"results": results}
+        cfg = corpus_config.get(corpus)
+        hook_name = cfg.get("postprocess_fn")
+
+        if hook_name:
+            try:
+                import importlib
+                corpus_post = importlib.import_module("corpus_post")
+                hook_fn = getattr(corpus_post, hook_name, None)
+                if callable(hook_fn):
+                    ask_response["results"] = hook_fn(ask_response["results"])
+            except Exception as e:
+                logger.warning(f"Postprocess hook '{hook_name}' failed: {e}")
+
         llm_input = prepare_llm_input(question, ask_response, corpus)
-        print("🔍 Retrieved documents:", [doc.get("source") for doc in results])
+        print("🔍 Retrieved documents:", [doc.get("source") for doc in ask_response["results"]])
         gpt_response = call_gpt(llm_input, corpus)
 
         return gpt_response

@@ -23,7 +23,7 @@ corpus_config = {
         "index_name": os.getenv("SEARCH_INDEX_MEMOS"),
         "prompt_file": "prompt_memo.txt",
         "select_fields": ["id", "year", "metadata_storage_path", "content"],
-        "default_top": 5,
+        "default_top": 50,
         "document_fields": {
             "source": "metadata_storage_path",
             "content": "content",
@@ -64,7 +64,7 @@ corpus_config = {
             "citation_url",
             "text_chunks"
         ],
-        "default_top": 10,
+        "default_top": 30,
         "document_fields": {
             "source": "title",
             "content": "text_chunks",
@@ -102,3 +102,4 @@ corpus_config = {
 #         "url": "url"
 #     }
 # }
+

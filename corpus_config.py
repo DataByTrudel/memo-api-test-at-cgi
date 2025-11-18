@@ -67,7 +67,7 @@ corpus_config = {
             "text_chunks"
         ],
         "default_top": 10,
-        "policy": "disclose_newer_conflicts"
+        "policy": "disclose_newer_conflicts",
         "document_fields": {
             "source": "title",
             "content": "text_chunks",
@@ -90,7 +90,7 @@ corpus_config = {
 #     "prompt_file": "prompt_acheron.txt",
 #     "select_fields": ["id", "title", "url", "content"],
 #     "default_top": 10,
-#     "policy": "disclose_newer_conflicts"
+#     "policy": "disclose_newer_conflicts",
 #     "document_fields": {
 #         "source": "title",
 #         "content": "content",

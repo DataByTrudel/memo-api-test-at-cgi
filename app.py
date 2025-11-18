@@ -46,7 +46,10 @@ def query(payload: dict = Body(...)):
 
         question = payload.get("question", "")
         year_filter = payload.get("yearFilter", None)
-        top_k = payload.get("top", config.get("default_top", 5))
+        top_k = payload.get("top")
+        if top_k is None:
+            top_k = config.get("default_top", 5)
+        policy = payload.get("policy") or config.get("policy")
         select_fields = payload.get("select") or config.get("select_fields")
 
         search_client = get_search_client(corpus)
@@ -110,6 +113,7 @@ def query(payload: dict = Body(...)):
                 logger.warning(f"Postprocess hook '{hook_name}' failed: {e}")
 
         llm_input = prepare_llm_input(question, ask_response, corpus)
+        llm_input["policy"] = policy
         print("🔍 Retrieved documents:", [doc.get("source") for doc in ask_response["results"]])
         gpt_response = call_gpt(llm_input, corpus)
 
@@ -127,7 +131,10 @@ def search(payload: dict = Body(...)):
 
         question = payload.get("question", "")
         year_filter = payload.get("yearFilter", None)
-        top_k = payload.get("top", config.get("default_top", 5))
+        top_k = payload.get("top")
+        if top_k is None:
+            top_k = config.get("default_top", 5)
+
         select_fields = payload.get("select") or config.get("select_fields")
 
         search_client = get_search_client(corpus)

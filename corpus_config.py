@@ -24,6 +24,7 @@ corpus_config = {
         "prompt_file": "prompt_memo.txt",
         "select_fields": ["id", "year", "metadata_storage_path", "content"],
         "default_top": 50,
+        "policy": "disclose_newer_conflicts",
         "document_fields": {
             "source": "metadata_storage_path",
             "content": "content",
@@ -42,6 +43,7 @@ corpus_config = {
         "select_fields": ["section_id", "citation", "title", "citation_url", "text_chunks"],
         "postprocess_fn": "statutes_prefer_base_sections",
         "default_top": 50,
+        "policy": "disclose_newer_conflicts",
         "document_fields": {
             "source": "citation",
             "content": "text_chunks",
@@ -64,7 +66,8 @@ corpus_config = {
             "citation_url",
             "text_chunks"
         ],
-        "default_top": 30,
+        "default_top": 10,
+        "policy": "disclose_newer_conflicts"
         "document_fields": {
             "source": "title",
             "content": "text_chunks",
@@ -86,7 +89,8 @@ corpus_config = {
 #     "index_name": "placeholder-index",
 #     "prompt_file": "prompt_acheron.txt",
 #     "select_fields": ["id", "title", "url", "content"],
-#     "default_top": 5,
+#     "default_top": 10,
+#     "policy": "disclose_newer_conflicts"
 #     "document_fields": {
 #         "source": "title",
 #         "content": "content",
@@ -102,4 +106,3 @@ corpus_config = {
 #         "url": "url"
 #     }
 # }
-

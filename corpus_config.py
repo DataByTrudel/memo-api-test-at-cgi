@@ -80,6 +80,7 @@ corpus_config = {
         },
     }
 }
+
 # === Reference Template (Acheron) ===
 # This is a placeholder configuration showing the expected shape for new corpus entries.
 # Do NOT enable or use this corpus directly. It provides default field naming only.
@@ -105,3 +106,4 @@ corpus_config = {
 #         "url": "url"
 #     }
 # }
+

@@ -118,8 +118,13 @@ def query(payload: dict = Body(...)):
                 logger.warning(f"Postprocess hook '{hook_name}' failed: {e}")
 
         llm_input = prepare_llm_input(question, ask_response, corpus)
-        llm_input["policy"] = policy
+
+        # Inject interpretive framing metadata
+        llm_input["years"] = payload.get("years")
+        llm_input["policy"] = payload.get("policy") or config.get("policy")
+
         print("🔍 Retrieved documents:", [doc.get("source") for doc in ask_response["results"]])
+
         gpt_response = call_gpt(llm_input, corpus)
 
         return gpt_response

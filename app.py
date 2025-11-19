@@ -40,7 +40,11 @@ def get_search_client(corpus: str) -> SearchClient:
 
 @app.post("/query")
 def query(payload: dict = Body(...)):
-    print("RAW PAYLOAD:", payload)
+
+    import logging
+    logger = logging.getLogger("uvicorn.error")
+    logger.info(f"RAW PAYLOAD RECEIVED: {payload}")
+
     try:
         corpus = payload.get("corpus", "memos").lower()
         config = corpus_config.get(corpus, corpus_config["memos"])

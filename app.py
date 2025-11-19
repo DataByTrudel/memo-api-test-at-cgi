@@ -40,6 +40,7 @@ def get_search_client(corpus: str) -> SearchClient:
 
 @app.post("/query")
 def query(payload: dict = Body(...)):
+    print("RAW PAYLOAD:", payload)
     try:
         corpus = payload.get("corpus", "memos").lower()
         config = corpus_config.get(corpus, corpus_config["memos"])

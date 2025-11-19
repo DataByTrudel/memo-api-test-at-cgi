@@ -23,7 +23,7 @@ corpus_config = {
         "index_name": os.getenv("SEARCH_INDEX_MEMOS"),
         "prompt_file": "prompt_memo.txt",
         "select_fields": ["id", "year", "metadata_storage_path", "content"],
-        "default_top": 25,
+        "default_top": 15,
         "policy": "disclose_newer_conflicts",
         "document_fields": {
             "source": "metadata_storage_path",
@@ -80,7 +80,6 @@ corpus_config = {
         },
     }
 }
-
 # === Reference Template (Acheron) ===
 # This is a placeholder configuration showing the expected shape for new corpus entries.
 # Do NOT enable or use this corpus directly. It provides default field naming only.
@@ -106,5 +105,3 @@ corpus_config = {
 #         "url": "url"
 #     }
 # }
-
-
